@@ -15,7 +15,7 @@ def get_location_key(city_name):
         if location_data:
             return location_data[0]['Key'], location_data[0]['LocalizedName'], location_data[0]['GeoPosition']
     except requests.exceptions.HTTPError:
-        print(f"HTTP ошибка при получении данных для города: {city_name}")
+        print(f"Ошибка при получении данных для: {city_name}")
         return None
     except requests.exceptions.RequestException as e:
         print(f"Ошибка запроса: {e}")
@@ -46,11 +46,9 @@ app.layout = html.Div([
             {'label': '7 дней', 'value': 7}
         ],
         value=3,
-        clearable=False
-    ),
+        clearable=False),
     html.Button('Получить погоду', id='submit-button', n_clicks=0),
-    dcc.Graph(id='weather-graph')
-])
+    dcc.Graph(id='weather-graph')])
 
 
 @app.callback(
@@ -59,8 +57,8 @@ app.layout = html.Div([
     Input('start-city', 'value'),
     Input('intermediate-cities', 'value'),
     Input('end-city', 'value'),
-    Input('days-dropdown', 'value')
-)
+    Input('days-dropdown', 'value'))
+
 def update_weather(n_clicks, start_city, intermediate_cities, end_city, days):
     if n_clicks > 0:
         cities = [start_city] + [city.strip() for city in intermediate_cities.split(',') if city.strip()] + [end_city]
@@ -84,8 +82,7 @@ def update_weather(n_clicks, start_city, intermediate_cities, end_city, days):
                     'Дата': day['Date'],
                     'Макс. температура (°C)': day['Temperature']['Maximum']['Value'],
                     'Мин. температура (°C)': day['Temperature']['Minimum']['Value'],
-                    'Вероятность осадков (%)': day['Day']['PrecipitationProbability']
-                })
+                    'Вероятность осадков (%)': day['Day']['PrecipitationProbability']})
         fig = go.Figure()
 
         for city in set(forecast['Город'] for forecast in all_forecasts):
@@ -103,31 +100,26 @@ def update_weather(n_clicks, start_city, intermediate_cities, end_city, days):
                 y=max_temps,
                 mode='lines+markers',
                 name=f'{city} Макс. температура (°C)',
-                line=dict(color='red')
-            ))
+                line=dict(color='red')))
             fig.add_trace(go.Scatter(
                 x=dates,
                 y=min_temps,
                 mode='lines+markers',
                 name=f'{city} Мин. температура (°C)',
-                line=dict(color='blue')
-            ))
+                line=dict(color='blue')))
             fig.add_trace(go.Scatter(
                 x=dates,
                 y=precip_probs,
                 mode='lines+markers',
                 name=f'{city} Вероятность осадков (%)',
-                line=dict(color='green', dash='dash')
-            ))
+                line=dict(color='green', dash='dash')))
 
         fig.update_layout(
             title='Прогноз погоды',
             xaxis_title='Дата',
             yaxis_title='Температура (°C) и Вероятность осадков (%)',
             legend_title='Параметры',
-            hovermode='x unified'
-        )
-
+            hovermode='x unified')
         return fig
 
 if __name__ == '__main__':
